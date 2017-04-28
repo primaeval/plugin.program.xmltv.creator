@@ -81,18 +81,18 @@ class yo_tv:
         return countries
 
     def get_providers(self, country):
-        log(country)
+        #log(country)
         countries = self.get_countries()
-        log(countries)
-        log(self.country_codes)
+        #log(countries)
+        #log(self.country_codes)
         country_code = self.country_codes[country]
-        log(country_code)
+        #log(country_code)
         if country_code == "uk":
             url = "http://uk.yo.tv/api/setting?id=1594745998&lookupid=3"
         else:
             zips = plugin.get_storage('zips')
             zip_code = zips.get(country)
-            log(zip_code)
+            #log(zip_code)
             if not zip_code:
                 set_zip_code(country)
                 zip_code = zips.get(country)
@@ -100,13 +100,13 @@ class yo_tv:
                     return []
             url = "http://%s.yo.tv/api/setting?id=%s&lookupid=1" % (country_code,zip_code)
 
-        log(url)
+        #log(url)
         j = requests.get(url).content
-        log(j)
+        #log(j)
         if not j:
             return
         data = json.loads(j)
-        log(data)
+        #log(data)
         self.headends = {x["Name"] : x["Value"] for x in data}
         providers = [x["Name"] for x in data]
         return providers
@@ -120,23 +120,22 @@ class yo_tv:
         providers = self.get_providers(country)
         country_id = self.country_codes.get(country)
         headend = self.headends.get(provider)
-        
+        #TODO get nice formatted channel names
         s = requests.Session()
         headers = {'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}
-        #headend = ADDON.getSetting("yo.%s.headend" % country_id)
         if headend:
             url = 'http://%s.yo.tv/settings/headend/%s' % (country_id,headend)
-            log(url)
+            #log(url)
             r = s.get(url,headers=headers)
         url = 'http://%s.yo.tv/' % country_id
-        log(url)
+        #log(url)
         r = s.get(url,headers=headers)
         html = HTMLParser.HTMLParser().unescape(r.content.decode('utf-8'))
-        log(html)
+        #log(html)
         channel_names = []
         channels = html.split('<li><a data-ajax="false"')
         for channel in channels:
-            log(channel)
+            #log(channel)
             img_url = ''
             img_match = re.search(r'<img class="lazy" src="/Content/images/yo/program_logo.gif" data-original="(.*?)"', channel)
             if img_match:
@@ -146,7 +145,7 @@ class yo_tv:
             if name_match:
                 channel_number = name_match.group(1)
                 channel_name = name_match.group(2)
-                log(channel_name)
+                #log(channel_name)
                 channel_names.append(channel_name)
         
         return channel_names
